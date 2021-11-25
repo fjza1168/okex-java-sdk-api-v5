@@ -10,10 +10,14 @@ import com.okex.open.api.utils.HmacSHA256Base64Utils;
 import okhttp3.*;
 import okio.Buffer;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.HttpHost;
+import org.apache.http.client.config.RequestConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
 import java.security.InvalidKeyException;
 import java.util.concurrent.TimeUnit;
 
@@ -67,8 +71,12 @@ public class APIHttpClient {
             if (this.config.isPrint()) {
                 this.printRequest(request, timestamp);
             }
+
             return chain.proceed(request);
         });
+        if(this.config.getEnabled()) {
+            clientBuilder.proxy(new Proxy(Proxy.Type.HTTP, new InetSocketAddress(config.getHost(), config.getPort())));
+        }
         return clientBuilder.build();
     }
 
